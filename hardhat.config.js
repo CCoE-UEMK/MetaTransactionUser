@@ -28,6 +28,13 @@ module.exports = {
       gasPrice: 20000000000, // 20 Gwei (Example, adjust based on the network's requirement)
       timeout: 20000,
     },
+    apothem: {
+      url: `https://earpc.apothem.network`,
+      accounts: getAccounts(),
+      chainId: 51,
+      gasPrice: 20000000000, // 20 Gwei (Example, adjust based on the network's requirement)
+      timeout: 20000,
+    },
   },
   etherscan: {
     apiKey: "metaTransactionVerifier", // Replace with your Etherscan API key,
@@ -42,6 +49,14 @@ module.exports = {
       },
       {
         network: "test_xdc",
+        chainId: 51,
+        urls: {
+          apiURL: "https://api-apothem.xdcscan.io/api",
+          browserURL: "https://apothem.xdcscan.io"
+        }
+      },
+      {
+        network: "apothem",
         chainId: 51,
         urls: {
           apiURL: "https://api-apothem.xdcscan.io/api",
