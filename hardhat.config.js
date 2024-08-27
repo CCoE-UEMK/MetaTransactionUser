@@ -1,19 +1,29 @@
 require("@nomiclabs/hardhat-ethers");
 require("@nomiclabs/hardhat-etherscan");
 require("dotenv").config();
+const { ethers } = require("ethers");
+
+function getAccounts() {
+  if (process.env.PRIVATE_KEY1) {
+    return [process.env.PRIVATE_KEY1];
+  } else if (process.env.MNEMONIC) {
+    const wallet = ethers.Wallet.fromMnemonic(process.env.MNEMONIC);
+    return [wallet.privateKey];
+  }
+  return [];
+}
 
 module.exports = {
-    
   solidity: "0.8.0",
   networks: {
     xdc: {
       url: `https://earpc.xinfin.network`,
-      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      accounts: getAccounts(),
       chainId: 50, // XDC Network chain ID
     },
     test_xdc: {
       url: `https://earpc.apothem.network`,
-      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      accounts: getAccounts(),
       chainId: 51,
       gasPrice: 20000000000, // 20 Gwei (Example, adjust based on the network's requirement)
       timeout: 20000,
@@ -29,9 +39,7 @@ module.exports = {
           apiURL: "https://api.xdcscan.io/api",
           browserURL: "https://xdcscan.io"
         }
-      }
-    ],
-    customChains: [
+      },
       {
         network: "test_xdc",
         chainId: 51,
