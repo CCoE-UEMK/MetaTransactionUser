@@ -25,15 +25,15 @@ module.exports = {
       url: `https://earpc.apothem.network`,
       accounts: getAccounts(),
       chainId: 51,
-      gasPrice: 20000000000, // 20 Gwei (Example, adjust based on the network's requirement)
-      timeout: 20000,
+      gasPrice: 40000000000, // 40 Gwei (Example, adjust based on the network's requirement)
+      timeout: 600000,
     },
     apothem: {
       url: `https://earpc.apothem.network`,
       accounts: getAccounts(),
       chainId: 51,
-      gasPrice: 20000000000, // 20 Gwei (Example, adjust based on the network's requirement)
-      timeout: 20000,
+      gasPrice: 40000000000, // 40 Gwei (Example, adjust based on the network's requirement)
+      timeout: 600000,
     },
   },
   etherscan: {
@@ -66,3 +66,4 @@ module.exports = {
     ]
   },
 };
+
