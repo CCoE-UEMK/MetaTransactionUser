@@ -1,0 +1,45 @@
+<!-- public/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meta-Transaction DApp</title>
+</head>
+<body>
+    <h1>Meta-Transaction DApp</h1>
+<form id="metaTransactionForm">
+        <label for="userAddress">User Address:</label>
+        <input type="text" id="userAddress" name="userAddress" required><br><br>
+        
+        <label for="message">Message:</label>
+        <input type="text" id="message" name="message" required><br><br>
+
+        <label for="paymentProof">Proof of Payment (e.g., transaction ID or receipt):</label>
+        <input type="text" id="paymentProof" name="paymentProof" required><br><br>
+
+        <button type="submit">Submit Meta-Transaction</button>
+    </form>    
+   <p id="status"></p>
+
+    <script>
+        document.getElementById('metaTransactionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const userAddress = document.getElementById('userAddress').value;
+            const message = document.getElementById('message').value;
+
+            const response = await fetch('/api/execute-meta-transaction', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ userAddress, message }),
+            });
+
+            const result = await response.json();
+            document.getElementById('status').textContent = result.status;
+        });
+    </script>
+</body>
+</html>
