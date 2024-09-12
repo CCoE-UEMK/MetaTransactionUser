@@ -1,6 +1,6 @@
 #Hardhat Meta-Transaction DApp
 This project sets up a Hardhat-based Ethereum development environment with a Solidity smart contract for 
-meta-transaction verification and execution on the XDC blockchain. 
+meta-transaction verification and execution on the XDC blockchain. Users can make fiat payment (gasless) for transaction initiation through square payment gateway. The relayer submits transaction behalf of the user in XDC blockchain using gas. 
 It includes an Express server and a simple web interface to interact with the contract.
 
 #Features
