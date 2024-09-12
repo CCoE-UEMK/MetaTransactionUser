@@ -1,33 +1,59 @@
-// server.js
 const express = require('express');
 const bodyParser = require('body-parser');
 const { ethers } = require('ethers');
+const { Client, Environment } = require('square'); // Correct package name is "square"
 require('dotenv').config();
 
 const app = express();
-const port = 3060;
+const port = 3061;
 
 // Middleware
 app.use(bodyParser.json());
 app.use(express.static('public')); // Serve static files (e.g., index.html)
 
+// Initialize Square Client
+const squareClient = new Client({
+    environment: Environment.Sandbox, // Use Environment.Production for live mode
+    accessToken: process.env.SQUARE_ACCESS_TOKEN
+});
+const paymentsApi = squareClient.paymentsApi;
+
+// Function to serialize BigInt values
+const serializeBigInt = (obj) => {
+    if (obj === null || obj === undefined) return obj;
+    if (typeof obj === 'bigint') return obj.toString();
+    if (typeof obj === 'object') {
+        return Object.fromEntries(
+            Object.entries(obj).map(([key, value]) => [key, serializeBigInt(value)])
+        );
+    }
+    return obj;
+};
+
 // Meta-Transaction Endpoint
 app.post('/api/execute-meta-transaction', async (req, res) => {
     const { userAddress, message, paymentProof } = req.body;
-     // Validate and process the payment proof here
-    // Example: Verify paymentProof with payment gateway API
 
-    if (!userAddress || !message) {
+    if (!userAddress || !message || !paymentProof) {
         return res.status(400).json({ status: 'Invalid input' });
     }
 
     try {
+        // Verify the payment proof with Square
+        const response = await paymentsApi.getPayment(paymentProof);
+        const paymentData = serializeBigInt(response.result);
+
+        if (paymentData.payment.status !== 'COMPLETED') {
+            return res.status(400).json({ error: 'Payment verification failed' });
+        }
+
+        // Ethers.js setup
         const MNEMONIC = process.env.MNEMONIC;
         const RPC_URL = process.env.RPC_URL;
         const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
         const wallet = ethers.Wallet.fromMnemonic(MNEMONIC).connect(provider);
 
-        const contractAddress = "0xe06E5d5458066CD89843D604DA5a0a687f1D63ab"; // Replace with your contract address
+        const contractAddress = process.env.CONTRACT_ADDRESS; // Replace with your contract address
         const abi = [
             "function executeMetaTransaction(address userAddress, bytes memory functionSignature, uint8 v, bytes32 r, bytes32 s) public payable returns (bytes memory)",
             "function exampleFunction(string memory message) public pure returns (string memory)"
@@ -53,16 +79,22 @@ app.post('/api/execute-meta-transaction', async (req, res) => {
         const { v, r, s } = signature;
 
         // Execute meta-transaction
-        const tx = await contract.executeMetaTransaction(userAddress, functionSignature, v, r, s, {
-            gasPrice: ethers.utils.parseUnits('20', 'gwei'),
-            gasLimit: 100000
-        });
+        try {
+            const tx = await contract.executeMetaTransaction(userAddress, functionSignature, v, r, s, {
+                gasPrice: ethers.utils.parseUnits('20', 'gwei'),
+                gasLimit: 100000
+            });
 
-        await tx.wait();
-        res.json({ status: 'Transaction confirmed' });
+            await tx.wait();
+            res.json({ status: 'Transaction confirmed' });
+        } catch (transactionError) {
+            console.error('Error executing meta-transaction:', transactionError);
+            res.status(500).json({ status: 'Error executing meta-transaction', error: transactionError.message });
+        }
     } catch (error) {
-        console.error('Error executing meta-transaction:', error);
-        res.status(500).json({ status: 'Error executing meta-transaction' });
+        console.error('Transaction failed, payment ID mismatch:', error);
+        const errorText = error.response ? await error.response.text() : error.message;
+        res.status(500).json({ status: 'Transaction failed, payment ID mismatch', error: errorText });
     }
 });
 
@@ -70,7 +102,3 @@ app.post('/api/execute-meta-transaction', async (req, res) => {
 app.listen(port, () => {
     console.log(`Server is running at http://localhost:${port}`);
 });
-
-
-
-
