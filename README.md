@@ -40,10 +40,10 @@ To start the server, run:
 
  ```npm start ```
  
-This will start the server on http://localhost:3060.
+This will start the server on http://localhost:3061.
 
 #Access the Web Interface
-Open your browser and navigate to http://localhost:3060 to interact with the web interface. Enter the user address, message, and payment proof from user and then submit the meta-transaction.
+Open your browser and navigate to http://localhost:3061 to interact with the web interface. Enter the user address, message, and payment proof from user and then submit the meta-transaction.
 
 #Smart Contract Overview
 The smart contract located in contracts/MetaTransaction.sol includes the following functions:
